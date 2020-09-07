@@ -1,0 +1,18 @@
+{
+  "name": "docker_web_app",
+  "version": "1.0.0",
+  "description": "Node.js on Docker",
+  "author": "First Last <first.last@example.com>",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "amqp-connection-manager": "^3.2.0",
+    "amqplib": "^0.6.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "winston": "^3.3.3",
+    "winston-logzio": "^5.1.2"
+  }
+}

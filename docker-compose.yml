@@ -1,0 +1,66 @@
+version: '3'
+services:
+
+  reciever:
+    build: ./reciever
+    ports:
+      - "49163:8080"
+    networks:
+      - app-network
+    links:
+      - rabbitmq
+    environment:
+      - SHIPPING_TOKEN=${LOGZIO_SHIPPING_TOKEN}
+      - LISTENER_URI=${LOGZIO_LISTENER}:5015
+
+  processor:
+    build: ./processor
+    ports:
+      - "49164:8081"
+    networks:
+      - app-network
+    links:
+      - rabbitmq
+    environment:
+      - SHIPPING_TOKEN=${LOGZIO_SHIPPING_TOKEN}
+      - LISTENER_URI=${LOGZIO_LISTENER}:5015
+
+  rabbitmq:
+    image: rabbitmq:3.7.4
+    ports:
+      - "5672:5672"
+    networks:
+      - app-network
+
+  logsmonitor:
+    image: logzio/docker-collector-logs
+    environment:
+      - LOGZIO_URL=${LOGZIO_LISTENER}:5015
+      - LOGZIO_TOKEN=${LOGZIO_SHIPPING_TOKEN}
+    volumes:
+       - /var/run/docker.sock:/var/run/docker.sock:ro
+       - /var/lib/docker/containers:/var/lib/docker/containers
+
+  metricsmonitor:
+    image: logzio/docker-collector-metrics
+    environment:
+      - LOGZIO_MODULES=docker
+      - LOGZIO_TOKEN=${LOGZIO_METRICS_TOKEN}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  jaegercollector:
+    image: logzio/jaeger-logzio-collector
+    environment:
+      - ACCOUNT_TOKEN=${LOGZIO_TRACING_TOKEN}
+    ports:
+      - "14268:14268"
+      - "9411:9411"
+      - "14269:14269"
+      - "14250:14250"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
