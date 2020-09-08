@@ -44,7 +44,7 @@ services:
   metricsmonitor:
     image: logzio/docker-collector-metrics
     environment:
-      - LOGZIO_MODULES=docker
+      - LOGZIO_MODULES=docker,system
       - LOGZIO_TOKEN=${LOGZIO_METRICS_TOKEN}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
