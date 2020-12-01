@@ -37,7 +37,7 @@ const options = {
   tags: {
     'nodejs-image-save.reciever.version': '0.0.0',
   },
-  logger: console,
+  logger,
 };
 const tracer = initTracer(config, options);
 

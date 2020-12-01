@@ -36,7 +36,7 @@ const options = {
   tags: {
     'nodejs-image-save.processor.version': '0.0.0',
   },
-  logger: console,
+  logger,
 };
 const tracer = initTracer(config, options);
 
