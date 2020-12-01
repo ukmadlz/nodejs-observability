@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "amqplib": "^0.6.0",
-    "express": "^4.16.1",
     "image-downloader": "^4.0.1",
     "jaeger-client": "^3.18.1",
     "opentracing": "^0.14.4",
