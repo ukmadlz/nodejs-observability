@@ -2,7 +2,7 @@
   "name": "docker_web_app",
   "version": "1.0.0",
   "description": "Node.js on Docker",
-  "author": "First Last <first.last@example.com>",
+  "author": "Mike Elsmore <mike.elsmore@logz.io>",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -12,6 +12,8 @@
     "amqplib": "^0.6.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "jaeger-client": "^3.18.1",
+    "opentracing": "^0.14.4",
     "winston": "^3.3.3",
     "winston-logzio": "^5.1.2"
   }

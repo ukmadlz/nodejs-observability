@@ -21,22 +21,27 @@ const logger = winston.createLogger({
 });
 
 // Jaeger
-var config = {
-  serviceName: 'nodejs-image-save',
+const config = {
+  serviceName: 'nodejs-image-save.processor',
   reporter: {
-    logSpans: true,
     collectorEndpoint: 'http://jaegercollector:14268/api/traces',
+    logSpans: true,
   },
+  sampler: {
+    type: 'const',
+    param: 1
+  }
 };
-var options = {
+const options = {
   tags: {
-    'nodejs-image-save.version': '0.0.0',
+    'nodejs-image-save.processor.version': '0.0.0',
   },
+  logger: console,
 };
+const tracer = initTracer(config, options);
 
 // Queue consumer
 const start = async () => {
-  var tracer = initTracer(config, options);
   logger.info('Starting connection to rabbitmq')
   const connection = await amqp.connect('amqp://rabbitmq');
 
@@ -47,10 +52,15 @@ const start = async () => {
   logger.info('Waiting tasks...');
 
   channel.consume('tasks', async (message) => {
-    const span = tracer.startSpan('amqp_request');
-
     const content = message.content.toString();
     const task = JSON.parse(content);
+    const parentSpan = tracer.extract(
+      opentracing.FORMAT_TEXT_MAP,
+      task.trace
+    );
+    const span = tracer.startSpan("amqp_request", {
+      references: [opentracing.followsFrom(parentSpan)]
+    });
 
     const { imageUrl } = task;
 
@@ -63,10 +73,10 @@ const start = async () => {
       span.log({'event': 'file_saved'});
       logger.info('Saved to', filename);
     } catch (e) {
-      logger.error(e);
+      const errorOject = {'event': 'error', 'error.object': e, 'message': e.message, 'stack': e.stack};
+      logger.error(errorOject);
       span.setTag(opentracing.Tags.ERROR, true);
-      span.log({'event': 'error', 'error.object': e, 'message': e.message, 'stack': e.stack});
-      span.finish();
+      span.log(errorOject);
     }
 
     channel.ack(message);

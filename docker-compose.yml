@@ -4,7 +4,7 @@ services:
   reciever:
     build: ./reciever
     ports:
-      - "49163:8080"
+      - "8080:8080"
     networks:
       - app-network
     links:
@@ -15,8 +15,6 @@ services:
 
   processor:
     build: ./processor
-    ports:
-      - "49164:8081"
     networks:
       - app-network
     links:
@@ -24,6 +22,8 @@ services:
     environment:
       - SHIPPING_TOKEN=${LOGZIO_SHIPPING_TOKEN}
       - LISTENER_URI=${LOGZIO_LISTENER}:5015
+    depends_on:
+      - rabbitmq
 
   rabbitmq:
     image: rabbitmq:3.7.4
@@ -50,12 +50,14 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
   jaegercollector:
-    image: logzio/jaeger-logzio-collector
+    image: logzio/jaeger-logzio-collector:latest
     environment:
       - ACCOUNT_TOKEN=${LOGZIO_TRACING_TOKEN}
+      - GRPC_STORAGE_PLUGIN_LOG_LEVEL=trace
     ports:
       - "14268:14268"
       - "9411:9411"
+      - "14267:14267"
       - "14269:14269"
       - "14250:14250"
     networks:
